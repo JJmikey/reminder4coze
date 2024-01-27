@@ -28,26 +28,28 @@ else:
 firebase_admin.initialize_app(credentials.Certificate(service_account_info), {'databaseURL': 'https://reminderapi-92cb1-default-rtdb.asia-southeast1.firebasedatabase.app//'})
 
 
-# Initialize APScheduler
-scheduler = BackgroundScheduler(daemon=True)
-scheduler.start()
-
-
 
 app = Flask(__name__)
 app.logger.setLevel(logging.ERROR)
 
+# Define your scheduled job function
+def scheduled_job():
+    # Scheduler job to check for due reminders, etc.
+    pass
+
 # 这一段代码移到app开始之前
 if __name__ == '__main__':
+    # Initialize APScheduler only if running this file as the main program
     scheduler = BackgroundScheduler(daemon=True)
     # your scheduled jobs here
+    scheduler.add_job(scheduled_job, 'interval', minutes=1)
     scheduler.start()
 
-    # Properly handle shutdown
-    def shutdown():
-        if scheduler.running:
-            scheduler.shutdown()
-    atexit.register(shutdown)
+    # Properly handle scheduler shutdown
+    atexit.register(lambda: scheduler.shutdown(wait=False))
+
+    # Start Flask app
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080))) #for deploy on vercel
 
 @app.route("/task", methods=['GET', 'POST'])
 def manage_tasks():
@@ -88,15 +90,3 @@ def manage_tasks():
         else:
             return jsonify({'message': 'Task is required'}), 400
 
-# 一个可能的scheduler的工作函数
-def scheduled_job():
-    # Your job code
-
-# 程序运行时添加scheduler的工作
-if __name__ == '__main__':
-    scheduler.add_job(scheduled_job, trigger='interval', minutes=1)
-    app.run()  # 或其他任何启动Flask app的命令
-       
-
-if __name__ == "__main__":
-      app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080))) #for deploy on vercel
