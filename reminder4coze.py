@@ -48,8 +48,8 @@ def scheduled_job():
                 if reminder_time <= now:
                     # If the reminder time has passed, send a reminder
                     send_reminder(task_details['task'])
-                    # Update the task status as notified or remove the reminder time
-                    # ref.child(str(task_id)).update({"status": "notified"}) # As an example
+                    # Delete the task from Firebase or mark as completed
+                    ref.child(str(task_id)).delete()  # This will completely remove the task
 
 def send_reminder(task_description):
     # This function should handle the actual reminder logic.
