@@ -1,4 +1,12 @@
 # app.py
+from datetime import datetime
+import pytz
+from apscheduler.schedulers.background import BackgroundScheduler
+
+# Initialize APScheduler
+scheduler = BackgroundScheduler(daemon=True)
+scheduler.start()
+
 import os 
 import json
 
@@ -42,8 +50,23 @@ def manage_tasks():
                 current_task_id = 1
             else:
                 current_task_id += 1
+
+            reminder_time = request.json.get('reminder_time', '')
+
+            # Ensure reminder_time is valid
+            try:
+                # you could allow different formats, here I expect it to be ISO8601
+                reminder_time = datetime.fromisoformat(reminder_time)
+            except ValueError:
+                return jsonify({'message': 'Invalid reminder time format. Use ISO8601.'}), 400
+        
             # Write to Firebase
-            ref.child("{}".format(current_task_id)).set({'id': current_task_id, 'task': task, 'status': 'pending'})
+            ref.child("{}".format(current_task_id)).set({
+                'id': current_task_id, 
+                'task': task, 
+                'status': 'pending',
+                'reminder_time': reminder_time.isoformat()  # Store as string in ISO format
+            })
             ref.child("current_task_id").set(current_task_id)
             return jsonify({'message': 'Task added', 'id': current_task_id}), 201
         else:
