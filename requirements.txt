@@ -4,3 +4,4 @@ firebase-admin
 apscheduler
 pytz
 dateutil
+requests
