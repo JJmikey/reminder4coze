@@ -7,6 +7,7 @@ from dateutil import parser
 
 import os 
 import json
+import requests
 
 from flask import Flask, jsonify, request
 import logging
@@ -27,7 +28,8 @@ else:
 # Initialize the Firebase application with Firebase database URL
 firebase_admin.initialize_app(credentials.Certificate(service_account_info), {'databaseURL': 'https://reminderapi-92cb1-default-rtdb.asia-southeast1.firebasedatabase.app//'})
 
-
+# 从环境变量获取 Slack webhook URL
+webhook_url = os.getenv('SLACK_WEBHOOK_URL')
 
 app = Flask(__name__)
 app.logger.setLevel(logging.ERROR)
@@ -52,9 +54,21 @@ def scheduled_job():
                     ref.child(str(task_id)).delete()  # This will completely remove the task
 
 def send_reminder(task_description):
-    # This function should handle the actual reminder logic.
-    # It could be an email, SMS, a notification, etc.
-    print(f"Reminder for task: {task_description}")  # Placeholder for actual reminder logic
+    # 要发送的消息内容
+    message = f"Reminder for task: {task_description}"
+
+    # 建立请求的数据载体
+    slack_data = {'text': message}
+
+    # 发送 POST 请求到 Slack webhook URL
+    response = requests.post(
+        webhook_url, json=slack_data,
+        headers={'Content-Type': 'application/json'}
+    )
+
+    if response.status_code != 200:
+        raise ValueError(f"Request to slack returned an error {response.status_code}, the response is:\n{response.text}")
+
 
 # 这一段代码移到app开始之前
 if __name__ == '__main__':
