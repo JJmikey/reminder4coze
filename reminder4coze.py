@@ -2,7 +2,7 @@
 from datetime import datetime
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
-
+from dateutil import parser
 
 
 import os 
@@ -79,6 +79,14 @@ def manage_tasks():
         return jsonify(todo_tasks)
     elif request.method == 'POST':
         task = request.json.get('task', '')
+        reminder_time_input = request.json.get('reminder_time', '')
+
+        # Parse natural language date/time input to a datetime object
+        try:
+            reminder_time = parser.parse(reminder_time_input)
+        except ValueError:
+            return jsonify({'message': 'Invalid date/time format'}), 400
+            
         if task:
             # Get current_task_id from Firebase and increment it
             current_task_id = ref.child("current_task_id").get()
