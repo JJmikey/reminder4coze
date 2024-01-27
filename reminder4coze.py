@@ -3,12 +3,17 @@ from datetime import datetime
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 
-# Initialize APScheduler
-scheduler = BackgroundScheduler(daemon=True)
-scheduler.start()
+
 
 import os 
 import json
+
+from flask import Flask, jsonify, request
+import logging
+
+import firebase_admin
+from firebase_admin import credentials, db
+
 
 # Load the credentials from environment variable
 firebase_service_account = os.getenv('FIREBASE_SERVICE_ACCOUNT')
@@ -19,19 +24,30 @@ else:
     # handle this error appropriately...
 
 
-from flask import Flask, jsonify, request
-import logging
-
-import firebase_admin
-from firebase_admin import credentials, db
-
-
-
 # Initialize the Firebase application with Firebase database URL
-firebase_admin.initialize_app(credentials.Certificate(service_account_info), {'databaseURL': 'https://todoapi-939ac-default-rtdb.asia-southeast1.firebasedatabase.app/'})
+firebase_admin.initialize_app(credentials.Certificate(service_account_info), {'databaseURL': 'https://reminderapi-92cb1-default-rtdb.asia-southeast1.firebasedatabase.app//'})
+
+
+# Initialize APScheduler
+scheduler = BackgroundScheduler(daemon=True)
+scheduler.start()
+
+
 
 app = Flask(__name__)
 app.logger.setLevel(logging.ERROR)
+
+# 这一段代码移到app开始之前
+if __name__ == '__main__':
+    scheduler = BackgroundScheduler(daemon=True)
+    # your scheduled jobs here
+    scheduler.start()
+
+    # Properly handle shutdown
+    def shutdown():
+        if scheduler.running:
+            scheduler.shutdown()
+    atexit.register(shutdown)
 
 @app.route("/task", methods=['GET', 'POST'])
 def manage_tasks():
@@ -72,54 +88,14 @@ def manage_tasks():
         else:
             return jsonify({'message': 'Task is required'}), 400
 
-@app.route("/task", methods=['PUT', 'DELETE'])
-def manage_specific_task():  # 不需要参数id
-    data = request.get_json()
-    if 'id' not in data:
-        return jsonify({'message': 'Task ID required'}), 400
+# 一个可能的scheduler的工作函数
+def scheduled_job():
+    # Your job code
 
-    task_id = data['id']
-    ref = db.reference(f"/{task_id}")
-
-    if request.method == 'PUT':
-        task = ref.get()
-        if task:
-            task_data = {
-                'id': task_id,
-                'task': data.get('task', task['task']),
-                'status': data.get('status', task['status'])
-            }
-            ref.update(task_data)
-            return jsonify({'message': 'Task updated'}), 200
-        else:
-            return jsonify({'message': 'Task not found'}), 404
-
-    elif request.method == 'DELETE':
-        # 根据task_id找到对应的任务引用
-        task_ref = db.reference(f"/{task_id}")
-
-        # 尝试获取这个引用指向的任务
-        task = task_ref.get()
-        
-        if task:
-            # 如果找到了任务，则删除这个任务
-            task_ref.delete()
-            
-            # 如果您需要的话，在这里可以更新current_task_id
-            # 但是请注意，`ref.get()`不是用来获取所有任务的。
-            # 您需要重新获取所有任务的引用，来找到新的最大ID。
-            all_tasks_ref = db.reference("/") # 这是所有任务的引用
-            all_tasks = all_tasks_ref.get() # 获取所有任务
-            if all_tasks:
-                task_ids = [int(task_id) for task_id in all_tasks.keys() if task_id != "current_task_id"]
-                max_id = max(task_ids) if task_ids else 0 # 根据您的业务逻辑，这里可以是-1或0
-                current_task_id_ref = db.reference("/current_task_id")
-                current_task_id_ref.set(max_id) # 更新current_task_id
-
-            return jsonify({'message': 'Task deleted'}), 200
-        else:
-            return jsonify({'message': 'Task not found'}), 404
-                     
+# 程序运行时添加scheduler的工作
+if __name__ == '__main__':
+    scheduler.add_job(scheduled_job, trigger='interval', minutes=1)
+    app.run()  # 或其他任何启动Flask app的命令
        
 
 if __name__ == "__main__":
