@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
         {
-            "src": "todo4coze.py",
+            "src": "reminder4coze.py",
             "use": "@vercel/python",
             "config": {
                 "maxLambdaSize": "10mb"
@@ -12,7 +12,7 @@
     "rewrites": [
         {
             "source": "/task",
-            "destination": "todo4coze.py"
+            "destination": "reminder4coze.py"
         }
     ],
     "headers": [
