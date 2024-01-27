@@ -35,7 +35,26 @@ app.logger.setLevel(logging.ERROR)
 # Define your scheduled job function
 def scheduled_job():
     # Scheduler job to check for due reminders, etc.
-    pass
+    ref = db.reference("/")
+    now = datetime.now(pytz.utc)
+
+    # Read from Firebase
+    tasks = ref.get()  
+    if tasks:
+        for task_id, task_details in tasks.items():
+            if 'reminder_time' in task_details:
+                # Parse the reminder time
+                reminder_time = datetime.fromisoformat(task_details['reminder_time'])
+                if reminder_time <= now:
+                    # If the reminder time has passed, send a reminder
+                    send_reminder(task_details['task'])
+                    # Update the task status as notified or remove the reminder time
+                    # ref.child(str(task_id)).update({"status": "notified"}) # As an example
+
+def send_reminder(task_description):
+    # This function should handle the actual reminder logic.
+    # It could be an email, SMS, a notification, etc.
+    print(f"Reminder for task: {task_description}")  # Placeholder for actual reminder logic
 
 # 这一段代码移到app开始之前
 if __name__ == '__main__':
