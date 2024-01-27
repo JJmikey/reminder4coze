@@ -82,7 +82,6 @@ def manage_tasks():
             ref.child("{}".format(current_task_id)).set({
                 'id': current_task_id, 
                 'task': task, 
-                'status': 'pending',
                 'reminder_time': reminder_time.isoformat()  # Store as string in ISO format
             })
             ref.child("current_task_id").set(current_task_id)
