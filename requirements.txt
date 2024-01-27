@@ -3,5 +3,5 @@ werkzeug
 firebase-admin
 apscheduler
 pytz
-dateutil
+python-dateutil
 requests
