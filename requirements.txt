@@ -3,5 +3,5 @@ werkzeug
 firebase-admin
 apscheduler
 pytz
-python-dateutil
-requests
+python-dateutil==2.8.1   # 或者您想使用的其它版本
+requests==2.25.1   # 或者您想使用的其它版本
