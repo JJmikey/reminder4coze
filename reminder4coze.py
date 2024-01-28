@@ -40,11 +40,12 @@ def scheduled_job():
     now = datetime.now(pytz.utc)
 
     # Read from Firebase
-    tasks = ref.get()  
+    tasks = retrieve_tasks()
+    
     if tasks:
         for task_id, task_details in tasks.items():
             # 首先要确保 task_details 是一个字典
-            if isinstance(task_details, dict) and 'reminder_time' in task_details:
+            if isinstance(task_details, dict) and 'reminder_time' in task_details and not task_details.get('reminder_sent', False)::
                 # Parse the reminder time
                 reminder_time = parser.parse(task_details['reminder_time'])
                 if reminder_time <= now:
@@ -52,6 +53,18 @@ def scheduled_job():
                     send_reminder(task_details['task'])
                     # Delete the task from Firebase or mark as completed
                     ref.child(str(task_id)).delete()  # This will completely remove the task
+
+                    # 更新任务的提醒状态为已发送
+                    task['reminder_sent'] = True
+                    update_task(task_id, task_details)
+
+def retrieve_tasks():
+    ref = db.reference("/")
+    tasks = ref.get()
+    if tasks:
+        return tasks.items()  # 获取所有任务项
+    return []  # 如果没有任何任务，则返回空列表
+
 
 def send_reminder(task_description):
     # 要发送的消息内容
@@ -69,6 +82,11 @@ def send_reminder(task_description):
     if response.status_code != 200:
         raise ValueError(f"Request to slack returned an error {response.status_code}, the response is:\n{response.text}")
 
+
+def update_task(task_id, task_details):
+    ref = db.reference(f"/{task_id}/")
+    task_details['reminder_sent'] = True  # 设置标志位为 True
+    ref.update(task_details)  # 更新 Firebase 中的任务详情
 
 # 这一段代码移到app开始之前
 if __name__ == '__main__':
