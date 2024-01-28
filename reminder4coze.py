@@ -45,7 +45,7 @@ def scheduled_job():
     if tasks:
         for task_id, task_details in tasks.items():
             # 首先要确保 task_details 是一个字典
-            if isinstance(task_details, dict) and 'reminder_time' in task_details and not task_details.get('reminder_sent', False)::
+            if isinstance(task_details, dict) and 'reminder_time' in task_details and not task_details.get('reminder_sent', False):
                 # Parse the reminder time
                 reminder_time = parser.parse(task_details['reminder_time'])
                 if reminder_time <= now:
