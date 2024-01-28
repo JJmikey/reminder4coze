@@ -51,13 +51,13 @@ def scheduled_job():
                 if reminder_time <= now:
                     # If the reminder time has passed, send a reminder
                     send_reminder(task_details['task'])
+                    # 更新任务的提醒状态为已发送
+                    task_details['reminder_sent'] = True
+                    update_task(task_id, task_details)
                     # Delete the task from Firebase or mark as completed
                     ref.child(str(task_id)).delete()  # This will completely remove the task
 
-                    # 更新任务的提醒状态为已发送
-                    task['reminder_sent'] = True
-                    update_task(task_id, task_details)
-
+                
 def retrieve_tasks():
     ref = db.reference("/")
     tasks = ref.get()
