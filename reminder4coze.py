@@ -1,7 +1,6 @@
 # app.py
 from datetime import datetime
 import pytz
-from apscheduler.schedulers.background import BackgroundScheduler
 from dateutil import parser
 
 
@@ -72,15 +71,7 @@ def send_reminder(task_description):
 
 # 这一段代码移到app开始之前
 if __name__ == '__main__':
-    # Initialize APScheduler only if running this file as the main program
-    scheduler = BackgroundScheduler(daemon=True)
-    # your scheduled jobs here
-    scheduler.add_job(scheduled_job, 'interval', minutes=1)
-    scheduler.start()
-
-    # Properly handle scheduler shutdown
-    atexit.register(lambda: scheduler.shutdown(wait=False))
-
+ 
     # Start Flask app
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080))) #for deploy on vercel
 
