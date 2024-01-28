@@ -74,10 +74,7 @@ def send_reminder(task_description):
     slack_data = {'text': message}
 
     # 发送 POST 请求到 Slack webhook URL
-    response = requests.post(
-        webhook_url, json=slack_data,
-        headers={'Content-Type': 'application/json'}
-    )
+    response = requests.post(webhook_url, json=slack_data, headers={'Content-Type': 'application/json'})
 
     if response.status_code != 200:
         raise ValueError(f"Request to slack returned an error {response.status_code}, the response is:\n{response.text}")
