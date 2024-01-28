@@ -122,6 +122,7 @@ def manage_tasks():
                 'id': current_task_id, 
                 'task': task, 
                 'reminder_time': reminder_time.isoformat()  # Store as string in ISO format
+                'reminder_sent': False  # Add this line to initialize reminder_sent as False
             })
             ref.child("current_task_id").set(current_task_id)
             send_reminder(task) # test webhook message function
