@@ -127,6 +127,7 @@ def manage_tasks():
             })
             ref.child("current_task_id").set(current_task_id)
             return jsonify({'message': 'Task added', 'id': current_task_id}), 201
+            send_reminder(task_details['task'])
         else:
             return jsonify({'message': 'Task is required'}), 400
 
