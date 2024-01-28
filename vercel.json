@@ -13,6 +13,10 @@
         {
             "source": "/task",
             "destination": "reminder4coze.py"
+        },
+        {
+            "source": "/cron",
+            "destination": "reminder4coze.py"
         }
     ],
     "headers": [
