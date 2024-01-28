@@ -116,6 +116,7 @@ def manage_tasks():
 
 @app.route("/cron", methods=['GET'])
 def cron_handler():
+    app.logger.info('Cron job has been called')
     # 这里调用您的scheduled_job函数来执行任务
     scheduled_job()
     return jsonify({'message': 'Cron task executed'}), 200
