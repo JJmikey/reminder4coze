@@ -94,14 +94,14 @@ def manage_tasks():
     elif request.method == 'POST':
         task = request.json.get('task', '')
         reminder_time_input = request.json.get('reminder_time', '')
-
-        # Parse natural language date/time input to a datetime object
-        try:
-            reminder_time = parser.parse(reminder_time_input)
-        except ValueError:
-            return jsonify({'message': 'Invalid date/time format'}), 400
-            
+                   
         if task:
+            # Parse natural language date/time input to a datetime object with error handling
+            try:
+                reminder_time = parser.parse(reminder_time_input)
+            except ValueError:
+                return jsonify({'message': 'Invalid date/time format'}), 400
+
             # Get current_task_id from Firebase and increment it
             current_task_id = ref.child("current_task_id").get()
             if current_task_id is None:
@@ -109,16 +109,7 @@ def manage_tasks():
                 current_task_id = 1
             else:
                 current_task_id += 1
-
-            reminder_time = request.json.get('reminder_time', '')
-
-            # Ensure reminder_time is valid
-            try:
-                # you could allow different formats, here I expect it to be ISO8601
-                reminder_time = datetime.fromisoformat(reminder_time)
-            except ValueError:
-                return jsonify({'message': 'Invalid reminder time format. Use ISO8601.'}), 400
-        
+                   
             # Write to Firebase
             ref.child("{}".format(current_task_id)).set({
                 'id': current_task_id, 
