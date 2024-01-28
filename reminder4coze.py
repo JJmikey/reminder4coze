@@ -47,7 +47,7 @@ def scheduled_job():
             if 'reminder_time' in task_details:
                 # Parse the reminder time
                 reminder_time = datetime.fromisoformat(task_details['reminder_time'])
-                if reminder_time <= now:
+                if reminder_time = now:
                     # If the reminder time has passed, send a reminder
                     send_reminder(task_details['task'])
                     # Delete the task from Firebase or mark as completed
