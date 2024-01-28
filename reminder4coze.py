@@ -43,9 +43,10 @@ def scheduled_job():
     tasks = ref.get()  
     if tasks:
         for task_id, task_details in tasks.items():
-            if 'reminder_time' in task_details:
+            # 首先要确保 task_details 是一个字典
+            if isinstance(task_details, dict) and 'reminder_time' in task_details:
                 # Parse the reminder time
-                reminder_time = datetime.fromisoformat(task_details['reminder_time'])
+                reminder_time = parser.parse(task_details['reminder_time'])
                 if reminder_time <= now:
                     # If the reminder time has passed, send a reminder
                     send_reminder(task_details['task'])
