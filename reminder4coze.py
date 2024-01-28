@@ -43,7 +43,7 @@ def scheduled_job():
     tasks = retrieve_tasks()
     
     if tasks:
-        for task_id, task_details in tasks.items():
+        for task_id, task_details in tasks:
             # 首先要确保 task_details 是一个字典
             if isinstance(task_details, dict) and 'reminder_time' in task_details and not task_details.get('reminder_sent', False):
                 # Parse the reminder time
