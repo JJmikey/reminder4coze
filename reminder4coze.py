@@ -48,6 +48,9 @@ def scheduled_job():
             if isinstance(task_details, dict) and 'reminder_time' in task_details and not task_details.get('reminder_sent', False):
                 # Parse the reminder time
                 reminder_time = parser.parse(task_details['reminder_time'])
+                
+                # 确保 `now` 是一个aware datetime对象
+                now = datetime.utcnow().replace(tzinfo=pytz.utc)
                 if reminder_time <= now:
                     # If the reminder time has passed, send a reminder
                     send_reminder(task_details['task'])
