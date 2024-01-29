@@ -71,8 +71,9 @@ def retrieve_tasks():
 
 def send_reminder(task_description):
     # 要发送的消息内容
-    message = f"Reminder for task: {task_description}"
-
+    #message = f"Reminder for task: {task_description}" 原裝句字
+    message = f{task_description}" #改寫句子
+    
     # 建立请求的数据载体
     slack_data = {'text': message}
 
