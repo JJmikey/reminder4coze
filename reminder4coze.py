@@ -83,6 +83,20 @@ def send_reminder(task_description):
         raise ValueError(f"Request to slack returned an error {response.status_code}, the response is:\n{response.text}")
 
 
+def set_reminder():
+    # 要发送的消息内容
+    message = f"已設置提醒"
+
+    # 建立请求的数据载体
+    slack_data = {'text': message}
+
+    # 发送 POST 请求到 Slack webhook URL
+    response = requests.post(webhook_url, json=slack_data, headers={'Content-Type': 'application/json'})
+
+    if response.status_code != 200:
+        raise ValueError(f"Request to slack returned an error {response.status_code}, the response is:\n{response.text}")
+
+
 def update_task(task_id, task_details):
     ref = db.reference(f"/{task_id}/")
     task_details['reminder_sent'] = True  # 设置标志位为 True
@@ -128,7 +142,7 @@ def manage_tasks():
                 'reminder_sent': False  # Add this line to initialize reminder_sent as False
             })
             ref.child("current_task_id").set(current_task_id)
-            send_reminder(task) # test webhook message function
+            set_reminder() # test webhook message function
             return jsonify({'message': 'Task added', 'id': current_task_id}), 201
             
         else:
