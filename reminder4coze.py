@@ -149,7 +149,7 @@ def manage_tasks():
         else:
             return jsonify({'message': 'Task is required'}), 400
 
-@app.route("/cron", methods=['GET'])
+@app.route("/api/cron", methods=['GET'])
 def cron_handler():
     app.logger.info('Cron job has been called')
     # 这里调用您的scheduled_job函数来执行任务
